@@ -422,7 +422,7 @@
     {vid:"assets/scenes/howl_flight.mp4",    poster:"assets/scenes/howl_flight.jpg",    t:"Howl's Moving Castle", j:"ハウルの動く城"},
   ];
   const cap=document.getElementById("cap");
-  let sceneIdx=-1, rotateTimer=null, kbAnim=null, curIdx=-1;
+  let sceneIdx=-1, rotateTimer=null, kbAnim=null, curIdx=-1, curVid=null;
 
   // no Anime.js? leave a clean, static page rather than a blank one
   if(!A){ document.getElementById("ask").style.display="none";
@@ -440,7 +440,9 @@
     let v=null;
     if(o.vid){
       v=document.createElement("video"); v.className="vid"; v.muted=true; v.loop=false;
-      v.setAttribute("playsinline",""); v.preload = lite ? "metadata" : "auto"; v.src=o.vid;
+      v.setAttribute("playsinline",""); v.setAttribute("webkit-playsinline","");
+      v.setAttribute("muted","");                       /* iOS honours the attribute, not only the prop */
+      v.preload="auto"; v.src=o.vid;
       v.addEventListener("loadedmetadata", ()=>{ o.dur=v.duration||4; }, { once:true });
       v.addEventListener("ended", ()=>{ if(idx===curIdx){ clearTimeout(rotateTimer); rotateTimer=setTimeout(nextScene, 1400); } });
       inner.appendChild(v);
@@ -474,7 +476,6 @@
     /* 1. how long this scene stays, and start its clip */
     let holdMs=9000;
     if(p.vid){
-      if(p.vid.preload!=="auto") p.vid.preload="auto";   // deferred until this scene's turn
       try{ p.vid.currentTime=0; }catch(e){}
       // start only once the clip can paint — play() called mid-load() can abort and stall
       const start=()=>{ const pr=p.vid.play(); if(pr && pr.catch) pr.catch(()=>{});
@@ -499,6 +500,7 @@
       animate(cp.slot, { opacity:[1,0], duration: calm?0:1100, ease:"out(2)" });
     }
 
+    curVid = p.vid || null;
     curIdx=sceneIdx;
     cap.innerHTML='<div class="t">'+o.t+'</div><div class="j">'+o.j+'</div>';
     animate(cap, { opacity:[0,1], translateY:[8,0], duration: calm?0:600, ease:"out(3)" });
@@ -658,6 +660,16 @@
   window.addEventListener("pointermove", onPointer, { passive:true });
 
   /* ── Interactions ────────────────────────────────────────── */
+  /* Some phones (iOS in Low Power Mode) only let a muted clip start after the
+     first user gesture, so nudge the current scene's video on the first touch. */
+  function kickCurrentVideo(){
+    if(curVid && curVid.paused && !curVid.ended){
+      const pr=curVid.play(); if(pr && pr.catch) pr.catch(()=>{});
+    }
+  }
+  window.addEventListener("pointerdown", kickCurrentVideo, { passive:true });
+  window.addEventListener("touchstart", kickCurrentVideo, { passive:true });
+
   window.addEventListener("pointerdown", e=>{
     if(e.target.closest(".card")||e.target.closest(".controls")||e.target.closest(".gallery")||e.target.closest(".sprite")) return;
     if(Math.random()<0.7) shoot();
