@@ -255,6 +255,29 @@
   footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; pointer-events: none; text-align: center;
     padding: 0 1rem 1.35rem; color: rgba(247,240,227,.92); font-size: .86rem; text-shadow: 0 2px 8px rgba(0,0,0,.7); }
   .sig-hand { font-family: "Great Vibes", cursive; font-size: 1.2rem; }
+
+  /* ── Mobile / low-power tuning ───────────────────────────────
+     Touch devices run the same layout but skip the GPU-expensive compositing
+     passes that make mobile Safari drop frames over the playing video:
+       · backdrop-filter re-blurs the moving scene behind every control each frame
+       · SVG displacement filters re-rasterise whenever the floating card moves
+       · mix-blend-mode layers force an extra full-screen composite over the video
+       · glowing box-shadows repaint on each of the ~100 animated particles      */
+  @media (hover: none), (max-width: 640px) {
+    .ctl, .restore, .gallery { -webkit-backdrop-filter: none; backdrop-filter: none; }
+    .ctl      { background: rgba(247,240,227,.96); }
+    .restore  { background: rgba(247,240,227,.96); }
+    .gallery  { background: rgba(10,14,22,.93); }
+
+    .card::before, .cast { filter: none; }        /* flat inked edge instead of displaced */
+
+    .grain { display: none; }
+    .warm  { mix-blend-mode: normal; opacity: calc(var(--warm) * .45); }
+    .spotlight { display: none; }                 /* no pointer on touch */
+
+    .star, .mote, .fly { box-shadow: none; }      /* keep the dots, drop the glow repaint */
+    .ctl, .back { will-change: auto; }            /* static after the hover-less render */
+  }
 </style>
 </head>
 <body>
@@ -329,7 +352,7 @@
         <div class="reveal" id="reveal" role="status" aria-live="polite">
           <h2>It's a date!</h2>
           <p class="jp">はい！</p>
-          <p>I'll start planning something lovely. Just say when. 🌸</p>
+          <p>I'll start planning something lovely. 🌸</p>
           <p class="sig" id="sig"></p>
           <button class="back" id="backBtn" type="button">↩ back to the question</button>
         </div>
@@ -381,6 +404,7 @@
   "use strict";
   const A = window.anime;
   const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const lite = window.matchMedia("(hover: none), (max-width: 640px)").matches;
   const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
   const rand = (a,b) => a + Math.random()*(b-a);
   const pick = (a) => a[(Math.random()*a.length)|0];
@@ -416,7 +440,7 @@
     let v=null;
     if(o.vid){
       v=document.createElement("video"); v.className="vid"; v.muted=true; v.loop=false;
-      v.setAttribute("playsinline",""); v.preload="auto"; v.src=o.vid;
+      v.setAttribute("playsinline",""); v.preload = lite ? "metadata" : "auto"; v.src=o.vid;
       v.addEventListener("loadedmetadata", ()=>{ o.dur=v.duration||4; }, { once:true });
       v.addEventListener("ended", ()=>{ if(idx===curIdx){ clearTimeout(rotateTimer); rotateTimer=setTimeout(nextScene, 1400); } });
       inner.appendChild(v);
@@ -450,6 +474,7 @@
     /* 1. how long this scene stays, and start its clip */
     let holdMs=9000;
     if(p.vid){
+      if(p.vid.preload!=="auto") p.vid.preload="auto";   // deferred until this scene's turn
       try{ p.vid.currentTime=0; }catch(e){}
       // start only once the clip can paint — play() called mid-load() can abort and stall
       const start=()=>{ const pr=p.vid.play(); if(pr && pr.catch) pr.catch(()=>{});
@@ -492,7 +517,7 @@
 
   function buildStars(){
     clearEl(starsBox);
-    const n=W<640?60:120;
+    const n=lite?(W<640?34:56):(W<640?60:120);
     for(let i=0;i<n;i++){
       const d=document.createElement("div"); d.className="star";
       d.style.left=(Math.random()*100)+"%"; d.style.top=(Math.random()*62)+"%";
@@ -504,7 +529,7 @@
 
   function buildPetals(){
     clearEl(petalsBox);
-    const n=calm?(W<640?4:7):(W<640?8:15);
+    const n=calm?(W<640?4:7):lite?(W<640?5:8):(W<640?8:15);
     const cols=["#ffd0dd","#e8b7c4","#f2a6bd","#ffc2d6"];
     for(let i=0;i<n;i++){
       const outer=document.createElement("div"); outer.className="petal";
@@ -520,7 +545,7 @@
 
   function buildPollen(){
     clearEl(pollenBox);
-    const n=calm?(W<640?3:5):(W<640?6:11);
+    const n=calm?(W<640?3:5):lite?(W<640?4:6):(W<640?6:11);
     for(let i=0;i<n;i++){
       const d=document.createElement("div"); d.className="mote";
       const x=rand(0,W), y=rand(0.15*H,0.95*H);
@@ -535,7 +560,7 @@
 
   function buildFlies(){
     clearEl(fliesBox);
-    const n=calm?(W<640?2:4):(W<640?4:8);
+    const n=calm?(W<640?2:4):lite?(W<640?3:5):(W<640?4:8);
     for(let i=0;i<n;i++){
       const d=document.createElement("div"); d.className="fly";
       const x=rand(0,W), y=rand(0.35*H,0.95*H);
@@ -616,6 +641,7 @@
     else { card.style.transform="translate("+dragX+"px,"+dragY+"px) scale("+cardScale+")"; }
   }
   function onPointer(e){
+    if(lite) return;                 // touch has no hover: skip tilt/magnet/parallax entirely
     pointerX=e.clientX; pointerY=e.clientY;
     root.style.setProperty("--px", pointerX+"px");
     root.style.setProperty("--py", pointerY+"px");
