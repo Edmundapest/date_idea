@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Will you go on a date with me, Enning?</title>
+
+<!--
+  Every animation on this page is driven by Anime.js v4 (MIT) — bundled locally
+  in assets/vendor/anime.v4.min.js so it works offline.
+
+  EDIT ME:
+    • Enning          → already set (her name)
+    • the lede line — your own words for the invitation
+    • the empty <p class="sig" id="sig"> — your sign-off
+
+  Artwork: assets/ghibli/*.jpg are from Studio Ghibli's official free-to-use
+  image library (https://www.ghibli.jp/works/). Howl's Moving Castle leads.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Great+Vibes&family=Noto+Serif+JP:wght@400;600&family=Work+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    /* ── Ghibli palette: 2 earth neutrals · 2 pastels · 1 warm accent · 1 grounding dark ── */
+    --g-cream:#f7f0e3; --g-taupe:#b9a88f; --g-sky:#a9c9e0;
+    --g-blush:#e8b7c4; --g-terracotta:#cf8a54; --g-forest:#2f3b3a;
+    --ink-line:#4a3a28;   /* thick hand-drawn outline */
+
+    --paper:var(--g-cream); --ink:var(--g-forest); --ink-soft:#5f6b63;
+    --rose:#c96a80; --rose-deep:#9c4a5e; --gold:var(--g-terracotta);
+
+    --bri:1; --sat:1.05; --hue:0deg; --con:1;
+    --warm:.5; --gt:0; --gb:0; --star-op:0; --firefly:0;
+    --px:50vw; --py:50vh; --bgx:0px; --bgy:0px;
+  }
+
+  * { box-sizing: border-box; }
+  .filters { position: absolute; width: 0; height: 0; overflow: hidden; }   /* defs only, no line box */
+  html, body { margin: 0; padding: 0; }
+  body { min-height: 100vh; font-family: "Work Sans", system-ui, sans-serif; font-size: 17px;
+    line-height: 1.8; font-weight: 300; color: var(--ink); background: var(--g-forest);
+    overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+  /* ── Painted background scenes ───────────────────────────── */
+  .scene { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: var(--g-forest);
+    filter: brightness(var(--bri)) saturate(var(--sat)) hue-rotate(var(--hue)) contrast(var(--con)); }
+  #layers { position: absolute; inset: 0; }
+  .slot { position: absolute; inset: -6%; opacity: 0; will-change: opacity; }
+  .slot .inner { position: absolute; inset: 0; will-change: transform; }
+  .slot video, .slot .still { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .slot video { object-fit: cover; }
+  .slot .still { background-size: cover; background-position: calc(50% + var(--bgx)) calc(36% + var(--bgy)); }
+  .warm { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; opacity: var(--warm);
+    background: radial-gradient(circle at 78% 8%, rgba(255,228,170,.65), rgba(255,226,160,0) 55%); }
+  .grade { position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, rgba(8,16,40,var(--gt)) 0%, rgba(6,10,26,var(--gb)) 100%); }
+  .scrim { position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(130% 100% at 50% 42%, rgba(0,0,0,0) 42%, rgba(6,10,24,.5) 100%); }
+
+  .scene-cap { position: fixed; left: clamp(.7rem,2.2vw,1.4rem); bottom: 3.6rem; z-index: 6; pointer-events: none;
+    color: rgba(247,240,227,.94); text-shadow: 0 2px 8px rgba(0,0,0,.7); }
+  .scene-cap .t { font-family: "Great Vibes", cursive; font-size: 1.3rem; }
+  .scene-cap .j { font-family: "Noto Serif JP", serif; font-size: .72rem; letter-spacing: .24em; opacity: .82; }
+
+  /* ── Motion layers (all animated by Anime.js) ────────────── */
+  .layer { position: fixed; inset: 0; z-index: 4; pointer-events: none; overflow: hidden; }
+  .stars { z-index: 1; opacity: var(--star-op); }
+  .star { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fdf6e6;
+    box-shadow: 0 0 4px rgba(255,255,255,.8); opacity: .3; }
+  .flies { z-index: 4; opacity: var(--firefly); }
+
+  .petal { position: absolute; top: 0; will-change: transform; }
+  .petal i { display: block; width: 12px; height: 12px; border-radius: 70% 0 70% 0;
+    background: linear-gradient(135deg, #ffe1ea, var(--c, #e8b7c4)); box-shadow: 0 0 5px rgba(200,120,150,.25); }
+  .mote { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #fff4d2;
+    box-shadow: 0 0 8px 2px rgba(255,228,160,.75); }
+  .fly { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #e6ffb4;
+    box-shadow: 0 0 9px 3px rgba(190,245,130,.7); }
+  .shot { position: absolute; height: 2px; width: 120px; border-radius: 2px; transform-origin: left center;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.95) 100%); }
+  .burst { position: absolute; width: 11px; height: 11px; border-radius: 70% 0 70% 0;
+    background: linear-gradient(135deg, #fff, var(--c, #e8b7c4)); }
+
+  /* ── Soot sprites ────────────────────────────────────────── */
+  .sprites { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
+  .sprite { position: absolute; width: 32px; height: 32px; pointer-events: auto; cursor: pointer;
+    filter: drop-shadow(0 3px 5px rgba(0,0,0,.5)); }
+  .sprite svg { width: 100%; height: 100%; overflow: visible; }
+  .sprite .eye { transform-origin: center; }
+
+  .spotlight { position: fixed; inset: 0; z-index: 6; pointer-events: none;
+    background: radial-gradient(240px circle at var(--px) var(--py), rgba(255,247,214,0.16), transparent 70%); }
+  .grain { position: fixed; inset: -150%; z-index: 7; pointer-events: none; opacity: .06; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  /* ── Stage / card ────────────────────────────────────────── */
+  .stage { position: relative; z-index: 8; min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: clamp(1rem, 5vh, 3.5rem) 1.25rem clamp(1.1rem, 9vh, 6rem); perspective: 1200px; }
+  .card-float { width: 100%; display: flex; justify-content: center; }
+  .card { position: relative; width: min(680px, 93vw);
+    padding: clamp(1.7rem, 4.2vw, 2.7rem) clamp(1.5rem, 4.6vw, 3.2rem);
+    transform-style: preserve-3d; }
+
+  /* the sheet itself: aged paper with a thick, wobbly hand-drawn edge */
+  .card::before { content: ""; position: absolute; inset: -14px; z-index: 0;
+    border-radius: 8px 13px 6px 15px;
+    background:
+      radial-gradient(120% 90% at 18% 6%, rgba(255,255,255,.62), rgba(255,255,255,0) 55%),
+      repeating-linear-gradient(0deg, rgba(120,96,60,.055) 0 25px, rgba(120,96,60,0) 25px 50px),
+      linear-gradient(180deg, #f6ead0 0%, #eddfbd 55%, #e2cfa4 100%);
+    border: 3px solid var(--ink-line);
+    box-shadow: 0 26px 60px -26px rgba(20,20,10,.85), inset 0 0 60px rgba(150,120,70,.28);
+    filter: url(#wobble); }
+  #ask, .reveal { position: relative; z-index: 1; }
+
+  /* the cast, as hand-cut paper stickers stuck on the sheet */
+  .cast { position: absolute; z-index: 2; width: 112px; height: 112px; border-radius: 50%;
+    overflow: hidden; background: #f6ead0; border: 4px solid var(--ink-line);
+    box-shadow: 0 12px 24px -10px rgba(20,20,10,.85); filter: url(#wobble2); }
+  .cast img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cast.a { left: -46px; top: -46px;     transform: rotate(-8deg); }                 /* Sophie */
+  .cast.b { right: -42px; top: -40px;    transform: rotate(7deg); }                  /* Howl */
+  .cast.c { left: -52px; bottom: 92px;   transform: rotate(6deg); }                  /* Calcifer */
+  .cast.d { right: -48px; bottom: 108px; transform: rotate(-7deg); }                 /* Markl */
+  .cast.e { left: 26%; bottom: -40px;    transform: rotate(-4deg) translateX(-50%); } /* Turnip Head */
+  .cast.f { right: 22%; bottom: -40px;   transform: rotate(5deg) translateX(50%); }   /* Heen */
+  @media (max-width: 560px) {
+    body .controls { flex-direction: row; }          /* a top bar, so the card's top edge stays free */
+    .cast { width: 48px; height: 48px; border-width: 2.5px; top: -28px; bottom: auto; }
+    .cast.a { left: 8%;   right: auto; transform: translateX(-50%) rotate(-6deg); }
+    .cast.b { left: 25%;  right: auto; transform: translateX(-50%) rotate(4deg); }
+    .cast.c { left: 42%;  right: auto; transform: translateX(-50%) rotate(-4deg); }
+    .cast.d { left: 59%;  right: auto; transform: translateX(-50%) rotate(6deg); }
+    .cast.e { left: 76%;  right: auto; transform: translateX(-50%) rotate(-5deg); }
+    .cast.f { left: 93%;  right: auto; transform: translateX(-50%) rotate(5deg); }
+  }
+
+  .hanko { position: absolute; right: clamp(.7rem,2.5vw,1.4rem); bottom: clamp(.7rem,2.5vw,1.4rem);
+    width: 42px; height: 42px; border-radius: 8px; background: rgba(190,60,60,0.9); color: var(--g-cream);
+    border: 3px solid var(--ink-line);
+    display: grid; place-items: center; font-family: "Noto Serif JP", serif; font-size: 22px;
+    box-shadow: 0 6px 14px -6px rgba(140,40,40,.7); }
+  .sprig { position: absolute; left: .7rem; top: .7rem; width: 62px; height: 62px; pointer-events: none; }
+  .divider { display: block; width: min(230px, 60%); height: auto; margin: .35rem auto .85rem; }
+
+  /* rotating Howl's quote */
+  .quote { display: block; min-height: 3.1em; margin: .85rem 0 0; padding: 0 .3rem; }
+  .quote .q { display: block; font-family: "Cormorant Garamond", Georgia, serif; font-style: italic;
+    font-size: clamp(.95rem,2.3vw,1.08rem); line-height: 1.55; color: var(--ink-soft); }
+  .quote .a { display: block; margin-top: .28rem; font-family: "Work Sans", sans-serif; font-size: .66rem;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--rose-deep); opacity: .78; }
+
+  /* drag to move · resize grip */
+  .card { cursor: grab; }
+  .grip { position: absolute; right: -3px; bottom: -3px; width: 28px; height: 28px; cursor: nwse-resize;
+    touch-action: none; }
+  .grip::after { content: ""; position: absolute; right: 8px; bottom: 8px; width: 9px; height: 9px;
+    border-right: 2px solid var(--g-taupe); border-bottom: 2px solid var(--g-taupe); opacity: .85; }
+
+  /* floating "bring it back" chip when the card is minimised */
+  .restore { position: fixed; z-index: 9; right: clamp(.7rem,2.2vw,1.4rem); bottom: clamp(.7rem,2.2vw,1.4rem);
+    display: none; place-items: center; padding: .55rem 1.05rem; cursor: pointer;
+    border: 1px solid rgba(247,240,227,.8); border-radius: 999px; background: rgba(247,240,227,.82);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: var(--g-forest);
+    font-family: "Work Sans", sans-serif; font-size: .82rem;
+    box-shadow: 0 10px 24px -12px rgba(20,30,30,.7); }
+  .restore:hover { background: rgba(255,252,245,.96); }
+  .restore:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+  /* ── Text ────────────────────────────────────────────────── */
+  .eyebrow { font-family: "Great Vibes", cursive; font-size: clamp(1.5rem,4.3vw,2.2rem); color: var(--rose-deep);
+    margin: .1rem 0 .3rem; }
+  h1 { font-family: "Cormorant Garamond", serif; font-weight: 600; font-size: clamp(1.7rem,5.2vw,2.8rem);
+    line-height: 1.1; margin: 0 0 .35rem; transform-style: preserve-3d; }
+  h1 .ch { display: inline-block; }
+  h1 .sp { display: inline-block; width: .3em; }
+  .jp { font-family: "Noto Serif JP", "Yu Mincho", serif; font-size: clamp(.92rem,2.5vw,1.1rem); color: var(--ink-soft);
+    letter-spacing: .18em; margin: 0; }
+  .lede { font-size: clamp(1.0625rem,2.6vw,1.185rem); line-height: 1.85; color: var(--ink-soft);
+    margin: 0 auto 1.35rem; max-width: 44ch; }
+  .lede b { color: var(--rose-deep); font-weight: 500; }
+
+  /* ── Buttons ─────────────────────────────────────────────── */
+  .actions { display: flex; justify-content: center; }
+  .yes { position: relative; overflow: hidden; isolation: isolate; font-family: "Work Sans", sans-serif;
+    font-size: clamp(1rem,3vw,1.2rem); font-weight: 500; color: var(--g-cream);
+    padding: .9rem 2.4rem; border: 3px solid var(--ink-line); cursor: pointer;
+    border-radius: 42% 58% 55% 45% / 52% 48% 54% 46%;              /* organic */
+    background: linear-gradient(135deg, var(--rose) 0%, var(--rose-deep) 100%);
+    box-shadow: 4px 5px 0 var(--ink-line), 0 16px 34px -12px rgba(156,74,94,.7); will-change: transform; }
+  .yes:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+  /* ── Reveal ──────────────────────────────────────────────── */
+  .reveal { display: none; }
+  .reveal h2 { font-family: "Great Vibes", cursive; font-weight: 400; font-size: clamp(2.2rem,7vw,3.6rem);
+    color: var(--rose-deep); margin: 0 0 .3rem; }
+  .reveal .jp { color: var(--rose); letter-spacing: .2em; }
+  .reveal p { font-size: clamp(1rem,2.9vw,1.2rem); color: var(--ink-soft); margin: .35rem 0; }
+  .reveal .sig { font-family: "Great Vibes", cursive; font-size: clamp(1.35rem,4.3vw,1.95rem); color: var(--rose); margin-top: .9rem; }
+  .back { margin-top: 1.15rem; font-family: "Work Sans", sans-serif; font-size: .82rem; font-weight: 500;
+    color: var(--ink); background: rgba(255,255,255,.55); cursor: pointer; will-change: transform;
+    padding: .5rem 1.25rem; border: 2.5px solid var(--ink-line); border-radius: 999px;
+    box-shadow: 2px 3px 0 var(--ink-line); }
+  .back:hover { background: #fffdf7; }
+  .back:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+  /* ── Controls ────────────────────────────────────────────── */
+  .controls { position: fixed; z-index: 9; left: clamp(.7rem,2.2vw,1.4rem); top: clamp(.7rem,2.2vw,1.4rem);
+    display: flex; flex-direction: column; gap: .55rem; }
+  .ctl { width: 48px; height: 48px; border-radius: 46% 54% 52% 48% / 50% 48% 54% 46%;   /* ≥48px target */
+    border: 3px solid var(--ink-line); background: rgba(247,240,227,.86);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    cursor: pointer; display: grid; place-items: center; color: var(--g-forest); will-change: transform;
+    box-shadow: 2px 3px 0 var(--ink-line); }
+  .ctl svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .ctl .alt { display: none; }
+  .ctl:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+  .ctl.on { background: linear-gradient(135deg, var(--rose), var(--rose-deep)); color: var(--g-cream); border-color: rgba(255,255,255,.45); }
+  .ctl.on .main { display: none; } .ctl.on .alt { display: block; }
+
+  /* ── Gallery ─────────────────────────────────────────────── */
+  .gallery { position: fixed; inset: 0; z-index: 10; display: none;
+    background: rgba(10,14,22,.82); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .gallery.open { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2rem; padding: 4rem 0; }
+  .gallery .head { color: var(--g-cream); text-align: center; font-family: "Great Vibes", cursive; font-size: clamp(1.6rem,4vw,2.4rem); }
+  .gallery .head small { display: block; font-family: "Noto Serif JP", serif; font-size: .8rem; letter-spacing: .3em; opacity: .7; }
+  .strip-wrap { width: 100%; overflow: hidden; position: relative; padding: 26px 0;
+    background: repeating-linear-gradient(90deg, transparent 0 8px, rgba(255,255,255,.06) 8px 16px); }
+  .strip-wrap::before, .strip-wrap::after { content: ""; position: absolute; left: 0; right: 0; height: 12px;
+    background: repeating-linear-gradient(90deg, rgba(247,240,227,.5) 0 10px, transparent 10px 26px); }
+  .strip-wrap::before { top: 4px; } .strip-wrap::after { bottom: 4px; }
+  .strip { display: flex; gap: 16px; width: max-content; padding: 0 16px; will-change: transform; }
+  .frame { flex: none; width: 260px; height: 146px; border-radius: 14px 10px 16px 9px; overflow: hidden; cursor: pointer;
+    border: 3px solid var(--ink-line); box-shadow: 4px 5px 0 rgba(74,58,40,.55); position: relative;
+    background: var(--g-forest); will-change: transform; }
+  .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .frame figcaption { position: absolute; left: 0; right: 0; bottom: 0; font-size: .72rem; color: #fff;
+    background: linear-gradient(transparent, rgba(0,0,0,.75)); padding: 14px 8px 5px; font-family: "Noto Serif JP", serif; }
+  .gallery .credit { color: rgba(247,240,227,.55); font-size: .75rem; text-align: center; font-style: italic; }
+  .g-close { position: absolute; top: clamp(.7rem,2.2vw,1.4rem); right: clamp(.7rem,2.2vw,1.4rem);
+    width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(255,255,255,.5); background: rgba(0,0,0,.35);
+    color: #fff; font-size: 22px; cursor: pointer; display: grid; place-items: center; }
+  .lightbox { position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+    flex-direction: column; gap: 1rem; }
+  .lightbox.show { display: flex; }
+  .lightbox img { max-width: 86vw; max-height: 70vh; border-radius: 12px; border: 5px solid #e9dcc0; box-shadow: 0 30px 80px -20px #000; }
+  .lightbox .cap { color: var(--g-cream); text-align: center; }
+  .lightbox .cap .t { font-family: "Great Vibes", cursive; font-size: 1.8rem; }
+  .lightbox .cap .j { font-family: "Noto Serif JP", serif; letter-spacing: .25em; opacity: .8; }
+
+  footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; pointer-events: none; text-align: center;
+    padding: 0 1rem 1.35rem; color: rgba(247,240,227,.92); font-size: .86rem; text-shadow: 0 2px 8px rgba(0,0,0,.7); }
+  .sig-hand { font-family: "Great Vibes", cursive; font-size: 1.2rem; }
+</style>
+</head>
+<body>
+
+  <!-- hand-drawn edge filters: give straight edges a wobbly, inked look -->
+  <svg class="filters" width="0" height="0" aria-hidden="true" focusable="false">
+    <filter id="wobble" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="3" seed="9" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="wobble2" x="-14%" y="-14%" width="128%" height="128%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02 0.03" numOctaves="2" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+
+  <div class="scene" id="scene" aria-hidden="true">
+    <div id="layers"></div>
+    <div class="warm"></div>
+    <div class="grade"></div>
+    <div class="scrim"></div>
+  </div>
+
+  <div class="layer stars" id="stars" aria-hidden="true"></div>
+  <div class="layer" id="petals" aria-hidden="true"></div>
+  <div class="layer" id="pollen" aria-hidden="true"></div>
+  <div class="layer flies" id="flies" aria-hidden="true"></div>
+  <div class="layer" id="shots" aria-hidden="true"></div>
+  <div class="sprites" id="sprites" aria-hidden="true"></div>
+  <div class="spotlight" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scene-cap" id="cap" aria-hidden="true"></div>
+
+  <main class="stage">
+    <div class="card-float" id="cardFloat">
+      <section class="card" id="card">
+        <div class="hanko" aria-hidden="true">好</div>
+        <svg class="sprig" viewBox="0 0 80 80" aria-hidden="true">
+          <path d="M12 70 C 30 55 45 38 62 14" fill="none" stroke="var(--g-forest)" stroke-width="1.5" stroke-linecap="round" opacity=".45"/>
+          <g fill="var(--g-blush)" opacity=".85">
+            <ellipse cx="26" cy="54" rx="9" ry="4.4" transform="rotate(-40 26 54)"/>
+            <ellipse cx="40" cy="41" rx="8" ry="4"   transform="rotate(-44 40 41)"/>
+            <ellipse cx="53" cy="27" rx="7" ry="3.4" transform="rotate(-48 53 27)"/>
+            <ellipse cx="30" cy="44" rx="7" ry="3.4" transform="rotate(30 30 44)"/>
+            <ellipse cx="45" cy="30" rx="6" ry="3"   transform="rotate(28 45 30)"/>
+          </g>
+        </svg>
+        <div class="cast a" aria-hidden="true"><img src="assets/cast2/sophie.png?v=2" alt=""></div>
+        <div class="cast b" aria-hidden="true"><img src="assets/cast2/howl.png?v=2" alt=""></div>
+        <div class="cast c" aria-hidden="true"><img src="assets/cast2/calcifer.png?v=2" alt=""></div>
+        <div class="cast d" aria-hidden="true"><img src="assets/cast2/markl.png?v=2" alt=""></div>
+        <div class="cast e" aria-hidden="true"><img src="assets/cast2/turnip.png?v=2" alt=""></div>
+        <div class="cast f" aria-hidden="true"><img src="assets/cast2/heen.png?v=2" alt=""></div>
+
+        <div id="ask">
+          <p class="eyebrow">A little question…</p>
+          <h1 id="question">Will you go on a date with me?</h1>
+          <p class="jp">一緒にデートしませんか、Enning？</p>
+          <svg class="divider" viewBox="0 0 240 14" aria-hidden="true">
+            <path d="M6 8 C 44 3 74 12 116 7 S 194 3 236 8" fill="none" stroke="var(--ink-line)" stroke-width="2.6" stroke-linecap="round" opacity=".7"/>
+            <path d="M214 5 c 9 -4 17 -2 22 5" fill="none" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round" opacity=".85"/>
+            <ellipse cx="20" cy="6.5" rx="6" ry="2.6" fill="var(--g-blush)" opacity=".75" transform="rotate(-16 20 6.5)"/>
+          </svg>
+          <p class="lede"><b>Enning</b>, I keep thinking about how the evening would go &mdash;
+            and I'd really love to share it with you.</p>
+          <div class="actions"><button class="yes" id="yesBtn" type="button">Yes, I'd love to 🤍</button></div>
+          <blockquote class="quote" id="quote">
+            <span class="q"></span><span class="a"></span>
+          </blockquote>
+        </div>
+
+        <div class="reveal" id="reveal" role="status" aria-live="polite">
+          <h2>It's a date!</h2>
+          <p class="jp">はい！</p>
+          <p>I'll start planning something lovely. Just say when. 🌸</p>
+          <p class="sig" id="sig"></p>
+          <button class="back" id="backBtn" type="button">↩ back to the question</button>
+        </div>
+        <div class="grip" id="grip" title="Drag to resize" aria-hidden="true"></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="controls">
+    <button class="ctl" id="timeBtn" title="Day / night (D)" aria-label="Toggle day and night">
+      <svg class="main" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.3"/><path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg>
+      <svg class="alt" viewBox="0 0 24 24"><path d="M15.6 3.4a9 9 0 1 0 5 14.2A7.2 7.2 0 0 1 15.6 3.4z"/></svg>
+    </button>
+    <button class="ctl" id="sceneBtn" title="Next scene (N)" aria-label="Next scene">
+      <svg class="main" viewBox="0 0 24 24"><path d="M2.8 18.6h18.4L15 9.2l-3.3 4.8-2.4-3.1z"/><circle cx="7.4" cy="7.2" r="1.8"/></svg>
+    </button>
+    <button class="ctl" id="filmBtn" title="Ghibli gallery (G)" aria-label="Open Ghibli gallery">
+      <svg class="main" viewBox="0 0 24 24"><rect x="2.8" y="4.8" width="18.4" height="14.4" rx="2.2"/><path d="M6.6 4.8v14.4M17.4 4.8v14.4M2.8 9.6h18.4M2.8 14.4h18.4"/></svg>
+    </button>
+    <button class="ctl" id="soundBtn" title="Ambient sound (S)" aria-label="Toggle ambient sound">
+      <svg class="main" viewBox="0 0 24 24"><path d="M4.6 9.6h3l3.6-3.1v11l-3.6-3.1h-3z"/><path d="M15 9.3a3.9 3.9 0 0 1 0 5.4M17.4 6.8a7.3 7.3 0 0 1 0 10.4"/></svg>
+      <svg class="alt" viewBox="0 0 24 24"><path d="M4.6 9.6h3l3.6-3.1v11l-3.6-3.1h-3z"/><path d="M15.2 9.9l4.2 4.2M19.4 9.9l-4.2 4.2"/></svg>
+    </button>
+    <button class="ctl" id="miniBtn" title="Minimise the card to see the artwork (M)" aria-label="Minimise the card">
+      <svg class="main" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      <svg class="alt" viewBox="0 0 24 24"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+    </button>
+  </div>
+
+  <button class="restore" id="restore" type="button">🌸 show the question</button>
+
+  <div class="gallery" id="gallery" role="dialog" aria-modal="true" aria-label="Ghibli gallery">
+    <button class="g-close" id="gClose" aria-label="Close gallery">✕</button>
+    <div class="head">Studio Ghibli<small>ジブリの世界</small></div>
+    <div class="strip-wrap" id="stripWrap"><div class="strip" id="strip"></div></div>
+    <p class="credit">Still frames from Studio Ghibli's free-to-use image library — ghibli.jp</p>
+    <div class="lightbox" id="lightbox">
+      <img id="lbImg" alt="" />
+      <div class="cap"><div class="t" id="lbTitle"></div><div class="j" id="lbJp"></div></div>
+    </div>
+  </div>
+
+  <footer><span class="sig-hand">Made with a little bit of magic</span> · 心を込めて</footer>
+  <audio id="music" src="assets/audio/theme.mp3" loop preload="none"></audio>
+
+<script src="assets/vendor/anime.v4.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  const A = window.anime;
+  const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+  const rand = (a,b) => a + Math.random()*(b-a);
+  const pick = (a) => a[(Math.random()*a.length)|0];
+  const root = document.documentElement;
+
+  /* ── Scenes ──────────────────────────────────────────────── */
+  const SCENES = [
+    {vid:"assets/scenes/castle_valley.mp4",  poster:"assets/scenes/castle_valley.jpg",  t:"Howl's Moving Castle", j:"ハウルの動く城"},
+    {vid:"assets/scenes/meadow_cottage.mp4", poster:"assets/scenes/meadow_cottage.jpg", t:"Howl's Moving Castle", j:"ハウルの動く城"},
+    {vid:"assets/scenes/howl_meadow.mp4",    poster:"assets/scenes/howl_meadow.jpg",    t:"Howl's Moving Castle", j:"ハウルの動く城"},
+    {vid:"assets/scenes/hill_walk.mp4",      poster:"assets/scenes/hill_walk.jpg",      t:"Howl's Moving Castle", j:"ハウルの動く城"},
+    {vid:"assets/scenes/roof_garden.mp4",    poster:"assets/scenes/roof_garden.jpg",    t:"Howl's Moving Castle", j:"ハウルの動く城"},
+    {vid:"assets/scenes/fireside.mp4",       poster:"assets/scenes/fireside.jpg",       t:"Howl's Moving Castle", j:"ハウルの動く城"},
+    {vid:"assets/scenes/castle_dusk.mp4",    poster:"assets/scenes/castle_dusk.jpg",    t:"Howl's Moving Castle", j:"ハウルの動く城"},
+    {vid:"assets/scenes/howl_flight.mp4",    poster:"assets/scenes/howl_flight.jpg",    t:"Howl's Moving Castle", j:"ハウルの動く城"},
+  ];
+  const cap=document.getElementById("cap");
+  let sceneIdx=-1, rotateTimer=null, kbAnim=null, curIdx=-1;
+
+  // no Anime.js? leave a clean, static page rather than a blank one
+  if(!A){ document.getElementById("ask").style.display="none";
+    document.getElementById("reveal").style.display="block"; return; }
+  const { animate, createTimeline, stagger, createAnimatable, utils } = A;
+
+  /* every scene gets its OWN preloaded layer — no src swapping, so a clip can never miss its turn */
+  const layersEl=document.getElementById("layers");
+  const pieces=SCENES.map((o,idx)=>{
+    const slot=document.createElement("div"); slot.className="slot";
+    const inner=document.createElement("div"); inner.className="inner";
+    const still=document.createElement("div"); still.className="still";
+    still.style.backgroundImage='url("'+(o.vid?o.poster:o.img)+'")';
+    inner.appendChild(still);
+    let v=null;
+    if(o.vid){
+      v=document.createElement("video"); v.className="vid"; v.muted=true; v.loop=false;
+      v.setAttribute("playsinline",""); v.preload="auto"; v.src=o.vid;
+      v.addEventListener("loadedmetadata", ()=>{ o.dur=v.duration||4; }, { once:true });
+      v.addEventListener("ended", ()=>{ if(idx===curIdx){ clearTimeout(rotateTimer); rotateTimer=setTimeout(nextScene, 1400); } });
+      inner.appendChild(v);
+    }
+    slot.appendChild(inner); layersEl.appendChild(slot);
+    return { slot, inner, vid:v };
+  });
+
+  /* ── Day / night grade ───────────────────────────────────── */
+  const gradeState={t:0}; let nightTarget=0;
+  function applyGrade(){
+    const t=gradeState.t;
+    root.style.setProperty("--star-op", t.toFixed(3));
+    root.style.setProperty("--firefly", t.toFixed(3));
+    root.style.setProperty("--bri", (1-0.52*t).toFixed(3));
+    root.style.setProperty("--sat", (1.05-0.35*t).toFixed(3));
+    root.style.setProperty("--hue", (-12*t).toFixed(1)+"deg");
+    root.style.setProperty("--con", (1+0.06*t).toFixed(3));
+    root.style.setProperty("--warm", (0.5-0.44*t).toFixed(3));
+    root.style.setProperty("--gt", (0.35*t).toFixed(3));
+    root.style.setProperty("--gb", (0.45*t).toFixed(3));
+  }
+  applyGrade();
+
+  /* ── Scene show / cross-fade (Anime.js) ──────────────────── */
+  function showScene(i){
+    sceneIdx=(i+SCENES.length)%SCENES.length;
+    const o=SCENES[sceneIdx], p=pieces[sceneIdx];
+    clearTimeout(rotateTimer);
+
+    /* 1. how long this scene stays, and start its clip */
+    let holdMs=9000;
+    if(p.vid){
+      try{ p.vid.currentTime=0; }catch(e){}
+      // start only once the clip can paint — play() called mid-load() can abort and stall
+      const start=()=>{ const pr=p.vid.play(); if(pr && pr.catch) pr.catch(()=>{});
+        animate(p.vid, { opacity:[0,1], duration:600, ease:"out(2)" }); };
+      if(p.vid.readyState>=2) start(); else p.vid.addEventListener("canplay", start, { once:true });
+      const d=(o.dur && isFinite(o.dur)) ? o.dur
+             : ((p.vid.duration && isFinite(p.vid.duration)) ? p.vid.duration : 4.5);
+      holdMs=d*1000+1600;                        // 'ended' normally fires first; this is the safety net
+    }
+
+    /* 2. a slow push-in over the scene's own lifetime — always on, so no scene can sit still */
+    if(kbAnim) kbAnim.cancel();
+    kbAnim = animate(p.inner, {
+      scale: [1.0,1.06], translateX: [0,-8], translateY: [0,-6],
+      duration: holdMs+1200, ease:"linear"
+    });
+
+    /* 3. cross-fade the layers */
+    animate(p.slot, { opacity:[0,1], duration: calm?0:1100, ease:"out(2)" });
+    if(curIdx>=0 && curIdx!==sceneIdx){ const cp=pieces[curIdx];
+      if(cp.vid){ try{ cp.vid.pause(); }catch(e){} }
+      animate(cp.slot, { opacity:[1,0], duration: calm?0:1100, ease:"out(2)" });
+    }
+
+    curIdx=sceneIdx;
+    cap.innerHTML='<div class="t">'+o.t+'</div><div class="j">'+o.j+'</div>';
+    animate(cap, { opacity:[0,1], translateY:[8,0], duration: calm?0:600, ease:"out(3)" });
+    rotateTimer=setTimeout(nextScene, holdMs);
+  }
+  function nextScene(){ showScene(sceneIdx+1); }
+
+  /* ── Ambient layers (Anime.js loops) ─────────────────────── */
+  let W=0,H=0;
+  const starsBox=document.getElementById("stars"), petalsBox=document.getElementById("petals"),
+        pollenBox=document.getElementById("pollen"), fliesBox=document.getElementById("flies"),
+        shotsBox=document.getElementById("shots");
+  const ambient=[];
+
+  function clearEl(el){ el.innerHTML=""; }
+
+  function buildStars(){
+    clearEl(starsBox);
+    const n=W<640?60:120;
+    for(let i=0;i<n;i++){
+      const d=document.createElement("div"); d.className="star";
+      d.style.left=(Math.random()*100)+"%"; d.style.top=(Math.random()*62)+"%";
+      starsBox.appendChild(d);
+      const a=animate(d, { opacity:[0.15,1], duration:rand(1500,4200), loop:true, alternate:true, ease:"inOut(2)", delay:rand(0,3000) });
+      ambient.push(a);
+    }
+  }
+
+  function buildPetals(){
+    clearEl(petalsBox);
+    const n=calm?(W<640?4:7):(W<640?8:15);
+    const cols=["#ffd0dd","#e8b7c4","#f2a6bd","#ffc2d6"];
+    for(let i=0;i<n;i++){
+      const outer=document.createElement("div"); outer.className="petal";
+      const inner=document.createElement("i"); inner.style.setProperty("--c", pick(cols));
+      const sz=rand(8,14); inner.style.width=sz+"px"; inner.style.height=sz+"px";
+      outer.appendChild(inner); petalsBox.appendChild(outer);
+      const x=rand(-20,W+20), dur=rand(9000,17000);
+      utils.set(outer, { translateX:x, translateY:-0.15*H, opacity:rand(.45,.9) });
+      ambient.push(animate(outer, { translateY:[-0.15*H, 1.15*H], rotate:[0,rand(360,720)], duration:dur, loop:true, ease:"linear", delay:rand(0,5000) }));
+      ambient.push(animate(inner, { translateX:[-rand(8,26), rand(8,26)], duration:rand(2600,5200), loop:true, alternate:true, ease:"inOut(1.5)" }));
+    }
+  }
+
+  function buildPollen(){
+    clearEl(pollenBox);
+    const n=calm?(W<640?3:5):(W<640?6:11);
+    for(let i=0;i<n;i++){
+      const d=document.createElement("div"); d.className="mote";
+      const x=rand(0,W), y=rand(0.15*H,0.95*H);
+      pollenBox.appendChild(d);
+      utils.set(d, { translateX:x, translateY:y });
+      ambient.push(animate(d, {
+        translateX:[x, x+rand(-90,90)], translateY:[y, y+rand(-70,70)], opacity:[0.15,0.85],
+        duration:rand(6000,13000), loop:true, alternate:true, ease:"inOut(1.5)", delay:rand(0,4000)
+      }));
+    }
+  }
+
+  function buildFlies(){
+    clearEl(fliesBox);
+    const n=calm?(W<640?2:4):(W<640?4:8);
+    for(let i=0;i<n;i++){
+      const d=document.createElement("div"); d.className="fly";
+      const x=rand(0,W), y=rand(0.35*H,0.95*H);
+      fliesBox.appendChild(d);
+      utils.set(d, { translateX:x, translateY:y });
+      ambient.push(animate(d, {
+        translateX:[x, x+rand(-70,70)], translateY:[y, y+rand(-50,50)], opacity:[0,1],
+        duration:rand(1800,4200), loop:true, alternate:true, ease:"inOut(2)", delay:rand(0,3000)
+      }));
+    }
+  }
+
+  function stopAmbient(){ ambient.forEach(a=>{ try{ a.cancel(); }catch(e){} }); ambient.length=0; }
+  function buildAmbient(){ stopAmbient(); buildStars(); buildPetals(); buildPollen(); buildFlies(); }
+
+  /* ── Shooting stars (click the sky) ──────────────────────── */
+  function shoot(){
+    const ang=Math.PI*(0.70+Math.random()*0.14), dist=rand(180,420);
+    const d=document.createElement("div"); d.className="shot";
+    d.style.left=rand(W*0.1,W*0.7)+"px"; d.style.top=rand(H*0.05,H*0.35)+"px";
+    shotsBox.appendChild(d);
+    animate(d, {
+      rotate:[ang*180/Math.PI, ang*180/Math.PI],
+      translateX:[0, Math.cos(ang)*dist], translateY:[0, Math.sin(ang)*dist],
+      opacity:[1,0], scaleX:[0.4,1.3],
+      duration: calm?0:900, ease:"out(2)", onComplete:()=>d.remove()
+    });
+  }
+
+  /* ── Soot sprites ────────────────────────────────────────── */
+  const spritesBox=document.getElementById("sprites");
+  function buildSprites(){
+    clearEl(spritesBox);
+    const spots=[[8,10,32],[17,6,24],[86,11,28],[74,7,22]];
+    spots.forEach((sp,i)=>{
+      const d=document.createElement("div"); d.className="sprite";
+      d.style.left=sp[0]+"%"; d.style.bottom=sp[1]+"%"; d.style.width=sp[2]+"px"; d.style.height=sp[2]+"px";
+      d.innerHTML='<svg viewBox="0 0 40 40"><g fill="#20202a">'+
+        '<circle cx="20" cy="21" r="13"/><circle cx="9" cy="17" r="4"/><circle cx="31" cy="17" r="4"/>'+
+        '<circle cx="13" cy="30" r="4"/><circle cx="27" cy="30" r="4"/><circle cx="20" cy="8" r="4"/></g>'+
+        '<g class="eye"><circle cx="15" cy="19" r="4.4" fill="#fff"/>'+
+        '<circle cx="25" cy="19" r="4.4" fill="#fff"/><circle cx="15" cy="19.5" r="2" fill="#111"/>'+
+        '<circle cx="25" cy="19.5" r="2" fill="#111"/></g></svg>';
+      spritesBox.appendChild(d);
+      if(!calm){
+        animate(d, { translateY:[-6,0], duration:rand(2400,3600), loop:true, alternate:true, ease:"inOut(2)", delay:rand(0,800) });
+        animate(d.querySelector(".eye"), { scaleY:[1,1,0.1,1,1], duration:5200, loop:true, ease:"inOut(2)", delay:rand(0,2000) });
+      }
+      d.addEventListener("mouseenter", ()=> animate(d, { scale:1.16, duration:380, ease:"out(3)" }));
+      d.addEventListener("mouseleave", ()=> animate(d, { scale:1, duration:420, ease:"out(3)" }));
+      d.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        animate(d, { translateY:[0,-26,0], scale:[1,1.22,1], duration:650, ease:"out(3)" });
+        const cur=parseFloat(d.style.left)||0;
+        animate(d, { left: clamp(cur+rand(-8,8), 2, 92)+"%" , duration:800, ease:"inOut(2)" });
+      });
+    });
+  }
+
+  /* ── Card: float, glow spin, tilt, magnetic ──────────────── */
+  const card=document.getElementById("card"), cardFloat=document.getElementById("cardFloat"),
+        yesBtn=document.getElementById("yesBtn"),
+        grip=document.getElementById("grip"), restoreBtn=document.getElementById("restore"),
+        miniBtn=document.getElementById("miniBtn"), quoteEl=document.getElementById("quote");
+  let tilt=null, magnet=null, pointerX=window.innerWidth/2, pointerY=window.innerHeight/2;
+  let dragX=0, dragY=0, cardScale=1, dragging=null, resizing=null, minimized=false;
+
+  function buildCardMotion(){
+    tilt = createAnimatable(card, {
+      rotateX:{duration:520, ease:"out(3)"}, rotateY:{duration:520, ease:"out(3)"},
+      translateX:{duration:200, ease:"out(2)"}, translateY:{duration:200, ease:"out(2)"}, scale:{duration:200, ease:"out(2)"}
+    });
+    magnet = createAnimatable(yesBtn, { translateX:{duration:420, ease:"out(3)"}, translateY:{duration:420, ease:"out(3)"}, scale:{duration:420, ease:"out(3)"} });
+    animate(cardFloat, { translateY:[-7,7], duration:3800, loop:true, alternate:true, ease:"inOut(2)" });
+  }
+  function applyCardCtrl(){
+    if(tilt){ tilt.translateX(dragX); tilt.translateY(dragY); tilt.scale(cardScale); }
+    else { card.style.transform="translate("+dragX+"px,"+dragY+"px) scale("+cardScale+")"; }
+  }
+  function onPointer(e){
+    pointerX=e.clientX; pointerY=e.clientY;
+    root.style.setProperty("--px", pointerX+"px");
+    root.style.setProperty("--py", pointerY+"px");
+    root.style.setProperty("--bgx", ((pointerX/window.innerWidth-0.5)*-26).toFixed(1)+"px");
+    root.style.setProperty("--bgy", ((pointerY/window.innerHeight-0.5)*-16).toFixed(1)+"px");
+    if(tilt && !calm){ tilt.rotateY((pointerX/W-0.5)*9); tilt.rotateX(-(pointerY/H-0.5)*9); }
+    if(magnet){
+      const r=yesBtn.getBoundingClientRect(), bx=r.left+r.width/2, by=r.top+r.height/2;
+      const dx=pointerX-bx, dy=pointerY-by, d=Math.hypot(dx,dy), R=120;
+      if(d<R){ magnet.translateX(clamp(dx*0.32,-26,26)); magnet.translateY(clamp(dy*0.32,-26,26)); magnet.scale(1.05); }
+      else { magnet.translateX(0); magnet.translateY(0); magnet.scale(1); }
+    }
+  }
+  window.addEventListener("pointermove", onPointer, { passive:true });
+
+  /* ── Interactions ────────────────────────────────────────── */
+  window.addEventListener("pointerdown", e=>{
+    if(e.target.closest(".card")||e.target.closest(".controls")||e.target.closest(".gallery")||e.target.closest(".sprite")) return;
+    if(Math.random()<0.7) shoot();
+  });
+
+  const timeBtn=document.getElementById("timeBtn");
+  let gradeAnim=null;
+  function setNight(on){
+    nightTarget=on?1:0; timeBtn.classList.toggle("on", on);
+    if(gradeAnim) gradeAnim.cancel();
+    gradeAnim = animate(gradeState, { t:nightTarget, duration: calm?0:1400, ease:"inOut(2)", onUpdate:applyGrade });
+  }
+  timeBtn.addEventListener("click", ()=> setNight(nightTarget<0.5));
+  document.getElementById("sceneBtn").addEventListener("click", nextScene);
+  buildSprites();
+
+  /* ── Move it aside: drag to reposition, grip to resize ───── */
+  (function setupCardWindow(){
+    card.addEventListener("pointerdown", e=>{
+      if(e.target.closest("button")||e.target.closest("a")||e.target.closest(".grip")) return;
+      dragging={x:e.clientX, y:e.clientY, bx:dragX, by:dragY};
+      try{ card.setPointerCapture(e.pointerId); }catch(_){}
+      card.style.cursor="grabbing";
+    });
+    card.addEventListener("pointermove", e=>{
+      if(!dragging) return;
+      dragX=dragging.bx+(e.clientX-dragging.x);
+      dragY=dragging.by+(e.clientY-dragging.y);
+      applyCardCtrl();
+    });
+    const stop=()=>{ dragging=null; card.style.cursor="grab"; };
+    card.addEventListener("pointerup", stop);
+    card.addEventListener("pointercancel", stop);
+
+    grip.addEventListener("pointerdown", e=>{ e.stopPropagation();
+      resizing={x:e.clientX, s:cardScale}; try{ grip.setPointerCapture(e.pointerId); }catch(_){} });
+    grip.addEventListener("pointermove", e=>{
+      if(!resizing) return;
+      cardScale=clamp(resizing.s+(e.clientX-resizing.x)/460, 0.7, 1.25);
+      applyCardCtrl();
+    });
+    const stopR=()=>{ resizing=null; };
+    grip.addEventListener("pointerup", stopR);
+    grip.addEventListener("pointercancel", stopR);
+  })();
+
+  /* ── Minimise the card so the artwork shows ──────────────── */
+  function setMinimized(on){
+    if(on===minimized) return;
+    minimized=on;
+    miniBtn.classList.toggle("on", on);
+    if(on){
+      animate(cardFloat, { opacity:[1,0], duration: calm?0:380, ease:"in(2)", onComplete:()=>{ cardFloat.style.display="none"; } });
+      restoreBtn.style.display="grid";
+      animate(restoreBtn, { opacity:[0,1], translateY:[10,0], duration: calm?0:420, ease:"out(3)" });
+    } else {
+      restoreBtn.style.display="none";
+      cardFloat.style.display="flex";
+      animate(cardFloat, { opacity:[0,1], duration: calm?0:520, ease:"out(3)" });
+    }
+  }
+  miniBtn.addEventListener("click", ()=> setMinimized(!minimized));
+  restoreBtn.addEventListener("click", ()=> setMinimized(false));
+
+  /* ── Rotating romantic quote — Howl's Moving Castle ──────── */
+  const QUOTES=[
+    {q:"Sorry, I've had enough of running away, Sophie. Now I've got something I want to protect. It's you.", a:"Howl"},
+    {q:"There you are, sweetheart. Sorry I'm late — I was looking everywhere for you.", a:"Howl"},
+    {q:"A heart's a heavy burden.", a:"Sophie"},
+    {q:"My name is Calcifer, the scary and powerful fire demon!", a:"Calcifer"},
+    {q:"Scorch marks! Howl, can you read them?", a:"Markl"},
+    {q:"It's been nice meeting you, even if you are my least-favorite vegetable. Take care, Turnip Head.", a:"Sophie"},
+    {q:"May all your bacon burn.", a:"Calcifer"},
+    {q:"When you're old, all you want to do is stare at the scenery… I've never felt so peaceful before.", a:"Sophie"},
+  ];
+  let qi=0;
+  function showQuote(i){
+    const o=QUOTES[i%QUOTES.length];
+    quoteEl.innerHTML='<span class="q">“'+o.q+'”</span><span class="a">— '+o.a+" · Howl's Moving Castle</span>";
+  }
+  function cycleQuote(){
+    const next=(qi+1)%QUOTES.length;
+    if(calm){ qi=next; showQuote(qi); return; }
+    animate(quoteEl, { opacity:[1,0], translateY:[0,-6], duration:360, ease:"in(2)", onComplete:()=>{
+      qi=next; showQuote(qi);
+      animate(quoteEl, { opacity:[0,1], translateY:[6,0], duration:560, ease:"out(3)" });
+    }});
+  }
+  showQuote(0);
+  setInterval(cycleQuote, 9000);
+
+  // control hover motion
+  utils.$(".ctl").forEach(b=>{
+    b.addEventListener("mouseenter", ()=> animate(b, { scale:1.08, duration:380, ease:"out(3)" }));
+    b.addEventListener("mouseleave", ()=> animate(b, { scale:1, duration:420, ease:"out(3)" }));
+  });
+
+  /* ── Music (volume faded by Anime.js) ────────────────────── */
+  const soundBtn=document.getElementById("soundBtn"), music=document.getElementById("music");
+  let musicOn=false;
+  music.volume=0;
+  soundBtn.addEventListener("click", ()=>{
+    musicOn=!musicOn; soundBtn.classList.toggle("on", musicOn);
+    const st={v:music.volume};
+    animate(st, { v: musicOn?0.32:0, duration:900, ease:"out(2)", onUpdate:()=>{ music.volume=clamp(st.v,0,1); } });
+    if(musicOn){ const p=music.play(); if(p && p.catch) p.catch(()=>{}); }
+    else { setTimeout(()=>{ if(!musicOn) music.pause(); }, 1000); }
+  });
+
+  /* ── Ghibli gallery (Anime.js marquee + reveal) ──────────── */
+  const HOWL={t:"Howl's Moving Castle", j:"ハウルの動く城"};
+  const FILMS=[
+    {s:"assets/ghibli/howl049.jpg", t:HOWL.t, j:HOWL.j}, {s:"assets/ghibli/howl009.jpg", t:HOWL.t, j:HOWL.j},
+    {s:"assets/ghibli/howl037.jpg", t:HOWL.t, j:HOWL.j}, {s:"assets/ghibli/howl048.jpg", t:HOWL.t, j:HOWL.j},
+    {s:"assets/ghibli/howl035.jpg", t:HOWL.t, j:HOWL.j}, {s:"assets/ghibli/howl050.jpg", t:HOWL.t, j:HOWL.j},
+    {s:"assets/ghibli/howl004.jpg", t:HOWL.t, j:HOWL.j}, {s:"assets/ghibli/howl032.jpg", t:HOWL.t, j:HOWL.j},
+    {s:"assets/ghibli/chihiro005.jpg", t:"Spirited Away", j:"千と千尋の神隠し"},
+    {s:"assets/ghibli/chihiro003.jpg", t:"Spirited Away", j:"千と千尋の神隠し"},
+    {s:"assets/ghibli/kokurikozaka002.jpg", t:"From Up on Poppy Hill", j:"コクリコ坂から"},
+    {s:"assets/ghibli/ponyo006.jpg", t:"Ponyo", j:"崖の上のポニョ"},
+    {s:"assets/ghibli/ponyo005.jpg", t:"Ponyo", j:"崖の上のポニョ"},
+    {s:"assets/ghibli/kaguyahime006.jpg", t:"The Tale of the Princess Kaguya", j:"かぐや姫の物語"},
+    {s:"assets/ghibli/marnie003.jpg", t:"When Marnie Was There", j:"思い出のマーニー"},
+    {s:"assets/ghibli/marnie005.jpg", t:"When Marnie Was There", j:"思い出のマーニー"},
+    {s:"assets/ghibli/karigurashi001.jpg", t:"The Secret World of Arrietty", j:"借りぐらしのアリエッティ"},
+    {s:"assets/ghibli/karigurashi004.jpg", t:"The Secret World of Arrietty", j:"借りぐらしのアリエッティ"},
+    {s:"assets/ghibli/kazetachinu009.jpg", t:"The Wind Rises", j:"風立ちぬ"},
+    {s:"assets/ghibli/ged007.jpg", t:"Tales from Earthsea", j:"ゲド戦記"},
+  ];
+  const strip=document.getElementById("strip"), gallery=document.getElementById("gallery"),
+        lightbox=document.getElementById("lightbox"), lbImg=document.getElementById("lbImg"),
+        lbTitle=document.getElementById("lbTitle"), lbJp=document.getElementById("lbJp"),
+        stripWrap=document.getElementById("stripWrap");
+  (function buildStrip(){
+    const make=()=>FILMS.map(f=>{
+      const fig=document.createElement("figure"); fig.className="frame";
+      const img=document.createElement("img"); img.src=f.s; img.alt=f.t; img.loading="lazy";
+      const c=document.createElement("figcaption"); c.textContent=f.t;
+      fig.append(img,c);
+      fig.addEventListener("mouseenter", ()=> animate(fig, { scale:1.07, translateY:-6, duration:420, ease:"out(3)" }));
+      fig.addEventListener("mouseleave", ()=> animate(fig, { scale:1, translateY:0, duration:460, ease:"out(3)" }));
+      fig.addEventListener("click", ()=> openLb(f));
+      return fig;
+    });
+    [...make(),...make()].forEach(f=>strip.appendChild(f));
+  })();
+  let marquee=null;
+  function startMarquee(){ if(calm) return;
+    if(marquee) marquee.cancel();
+    const half = strip.scrollWidth / 2;                 // list is duplicated → animate half a loop
+    marquee = animate(strip, { translateX:[0,-half], duration:60000, loop:true, ease:"linear" }); }
+  stripWrap.addEventListener("mouseenter", ()=> marquee && marquee.pause());
+  stripWrap.addEventListener("mouseleave", ()=> marquee && marquee.play());
+
+  function openLb(f){ lbImg.src=f.s; lbTitle.textContent=f.t; lbJp.textContent=f.j;
+    lightbox.classList.add("show");
+    animate(lightbox, { opacity:[0,1], duration:340, ease:"out(2)" });
+    animate(lightbox.querySelector("img"), { scale:[0.92,1], duration:420, ease:"out(3)" });
+  }
+  lightbox.addEventListener("click", ()=> lightbox.classList.remove("show"));
+  function openGallery(){ gallery.classList.add("open"); startMarquee();
+    animate(gallery, { opacity:[0,1], duration:380, ease:"out(2)" }); }
+  function closeGallery(){ gallery.classList.remove("open"); lightbox.classList.remove("show");
+    if(marquee) marquee.pause(); }
+  document.getElementById("filmBtn").addEventListener("click", openGallery);
+  document.getElementById("gClose").addEventListener("click", closeGallery);
+  gallery.addEventListener("click", e=>{ if(e.target===gallery) closeGallery(); });
+
+  window.addEventListener("keydown", e=>{
+    if(e.key==="Escape") closeGallery();
+    else if(e.key==="d"||e.key==="D") setNight(nightTarget<0.5);
+    else if(e.key==="n"||e.key==="N") nextScene();
+    else if(e.key==="m"||e.key==="M") setMinimized(!minimized);
+    else if(e.key==="g"||e.key==="G") (gallery.classList.contains("open")?closeGallery():openGallery());
+    else if(e.key==="s"||e.key==="S") soundBtn.click();
+  });
+
+  /* ── Yes → reveal (Anime.js timeline, replaces View Transitions) ── */
+  const ask=document.getElementById("ask"), reveal=document.getElementById("reveal");
+  function doReveal(){
+    animate(ask, { opacity:[1,0], translateY:[0,-16], duration: calm?0:420, ease:"in(2)",
+      onComplete:()=>{ ask.style.display="none"; } });
+    reveal.style.display="block";
+    utils.set(reveal, { opacity:0 });
+    utils.set(reveal.querySelectorAll("h2,.jp,p,.sig"), { opacity:0 });
+    const tl=createTimeline();
+    tl.add(reveal, { opacity:[0,1], duration:520 }, 0)
+      .add(reveal.querySelector("h2"), { opacity:[0,1], translateY:[18,0], scale:[.9,1], duration:760, ease:"out(3)" }, 60)
+      .add(reveal.querySelector(".jp"), { opacity:[0,1], translateY:[12,0], duration:560, ease:"out(3)" }, 240)
+      .add(reveal.querySelectorAll("p:not(.jp)"), { opacity:[0,1], translateY:[12,0], duration:560, ease:"out(3)", delay:stagger(120) }, 360)
+      .add(reveal.querySelector(".sig"), { opacity:[0,1], duration:680, ease:"out(3)" }, 560);
+  }
+  yesBtn.addEventListener("click", ()=>{
+    const r=yesBtn.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+    const cols=["#ffd0dd","#e8b7c4","#f2a6bd","#ffc2d6","#d99bb0"];
+    const n=calm?0:54;
+    for(let i=0;i<n;i++){
+      const d=document.createElement("div"); d.className="burst";
+      d.style.setProperty("--c", pick(cols));
+      d.style.left=cx+"px"; d.style.top=cy+"px";
+      shotsBox.appendChild(d);
+      const a=rand(0,Math.PI*2), dist=rand(90,420);
+      const dx=Math.cos(a)*dist, dy=Math.sin(a)*dist-60;
+      animate(d, {
+        translateX:[0, dx*0.55, dx], translateY:[0, dy*0.5, dy+180],
+        rotate:[0, rand(-320,320)], scale:[1,1,0.6], opacity:[1,1,0],
+        duration: rand(1300,2200), ease:"out(2)", onComplete:()=>d.remove()
+      });
+    }
+    animate(yesBtn, { scale:[1,1.12,1], duration:520, ease:"out(3)" });
+    if(ask.style.display!=="none") doReveal();
+  });
+
+  /* ── back to the question ────────────────────────────────── */
+  const backBtn=document.getElementById("backBtn");
+  backBtn.addEventListener("click", ()=>{
+    animate(reveal, { opacity:[1,0], duration: calm?0:360, ease:"in(2)", onComplete:()=>{ reveal.style.display="none"; } });
+    ask.style.display="block";
+    utils.set(ask, { translateY:0 });
+    animate(ask, { opacity:[0,1], translateY:[12,0], duration: calm?0:560, ease:"out(3)" });
+    backBtn.blur();
+  });
+
+  /* ── Entrance timeline ───────────────────────────────────── */
+  (function splitChars(){
+    const h1=document.getElementById("question"), text=h1.textContent;
+    h1.textContent=""; let i=0;
+    for(const word of text.split(" ")){
+      const w=document.createElement("span"); w.style.display="inline-block"; w.style.whiteSpace="nowrap";
+      for(const ch of word){ const s=document.createElement("span"); s.className="ch"; s.textContent=ch; w.appendChild(s); i++; }
+      h1.appendChild(w); h1.appendChild(Object.assign(document.createElement("span"),{className:"sp"}));
+    }
+  })();
+
+  function drawDividerReady(){
+    utils.$(".divider path").forEach(p=>{
+      try{ const L=p.getTotalLength(); p.style.strokeDasharray=L; p.style.strokeDashoffset=L; }catch(e){}
+    });
+  }
+
+  function buildEntrance(){
+    atSetup();
+    const tl=createTimeline();
+    tl.add("#question .ch", { opacity:[0,1], translateY:["0.7em",0], rotateX:[-75,0], duration:900, ease:"out(3)", delay:stagger(26,{start:250}) }, 0)
+      .add(".eyebrow", { opacity:[0,1], translateY:[18,0], scale:[.94,1], duration:900, ease:"out(3)" }, 0)
+      .add(".jp", { opacity:[0,1], translateY:[14,0], duration:800, ease:"out(3)" }, 700)
+      .add(".divider path", { strokeDashoffset:0, duration:850, ease:"inOut(2)", delay:stagger(150) }, 780)
+      .add(".lede", { opacity:[0,1], translateY:[16,0], duration:900, ease:"out(3)" }, 950)
+      .add(".actions", { opacity:[0,1], translateY:[14,0], duration:900, ease:"out(3)", scale:[.96,1] }, 1150)
+      .add(".quote", { opacity:[0,1], translateY:[12,0], duration:800, ease:"out(3)" }, 1320)
+      .add("footer, .scene-cap", { opacity:[0,1], duration:1200, ease:"out(2)" }, 1400);
+  }
+  function atSetup(){
+    utils.set(".eyebrow,.jp,.lede,.actions,.quote,footer,.scene-cap", { opacity:0 });
+    utils.set(".jp,.lede,.actions,.quote", { translateY:14 });
+    utils.set("#question .ch", { opacity:0 });
+  }
+
+  /* ── Boot ────────────────────────────────────────────────── */
+  let rt=null;
+  function measure(){ W=window.innerWidth; H=window.innerHeight; }
+  window.addEventListener("resize", ()=>{
+    measure();
+    clearTimeout(rt); rt=setTimeout(()=>{ buildAmbient(); }, 250);
+  });
+
+  measure();
+  buildAmbient();
+  buildCardMotion();
+  drawDividerReady();
+  showScene(0);
+  buildEntrance();
+})();
+</script>
+</body>
+</html>
