@@ -16,6 +16,10 @@
 
   Artwork: assets/ghibli/*.jpg are from Studio Ghibli's official free-to-use
   image library (https://www.ghibli.jp/works/). Howl's Moving Castle leads.
+
+  Music: "Frost Waltz" by Kevin MacLeod (https://incompetech.com), licensed
+  under Creative Commons Attribution 4.0
+  (https://creativecommons.org/licenses/by/4.0/).
 -->
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -255,6 +259,8 @@
   footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; pointer-events: none; text-align: center;
     padding: 0 1rem 1.35rem; color: rgba(247,240,227,.92); font-size: .86rem; text-shadow: 0 2px 8px rgba(0,0,0,.7); }
   .sig-hand { font-family: "Great Vibes", cursive; font-size: 1.2rem; }
+  .music-credit { display: block; margin-top: .15rem; font-size: .6rem; font-style: italic;
+    letter-spacing: .04em; opacity: .55; }
 
   /* ── Mobile / low-power tuning ───────────────────────────────
      Touch devices run the same layout but skip the GPU-expensive compositing
@@ -395,8 +401,9 @@
     </div>
   </div>
 
-  <footer><span class="sig-hand">Made with a little bit of magic</span> · 心を込めて</footer>
-  <audio id="music" src="assets/audio/theme.mp3" loop preload="none"></audio>
+  <footer><span class="sig-hand">Made with a little bit of magic</span> · 心を込めて
+    <small class="music-credit">Music: &ldquo;Frost Waltz&rdquo; by Kevin MacLeod (incompetech.com), CC BY 4.0</small></footer>
+  <audio id="music" src="assets/audio/frost-waltz.mp3" loop preload="none"></audio>
 
 <script src="assets/vendor/anime.v4.min.js"></script>
 <script>
